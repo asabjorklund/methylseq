@@ -440,7 +440,7 @@ if( params.aligner == 'bismark' ){
                 --genome $index \\
                 $reads
             """
-        } else if ( params.twolames ) {
+        } else if ( params.twolanes ) {
             """
             bismark \\
                 --bam $pbat $non_directional $unmapped $mismatches $multicore \\
