@@ -101,6 +101,7 @@ params.epignome = false
 params.accel = false
 params.zymo = false
 params.cegx = false
+params.towlanes = false
 if(params.pbat){
     params.clip_r1 = 9
     params.clip_r2 = 9
@@ -148,6 +149,13 @@ if( params.readPaths ){
             .map { row -> [ row[0], [file(row[1][0])]] }
             .ifEmpty { exit 1, "params.readPaths was empty - no input files supplied" }
             .into { ch_read_files_for_fastqc; ch_read_files_for_trim_galore }
+    } else if( params.twolanes ){ // OBS! only implemented for PE data.
+         Channel
+            .from(params.readPaths)
+            .map { row -> [ row[0], [file(row[1][0]), file(row[1][1]),file(row[1][2]), file(row[1][3])]] }
+            .ifEmpty { exit 1, "params.readPaths was empty - no input files supplied" }
+            .into { ch_read_files_for_fastqc; ch_read_files_for_trim_galore }
+     
     } else {
         Channel
             .from(params.readPaths)
@@ -431,6 +439,14 @@ if( params.aligner == 'bismark' ){
                 --bam $pbat $non_directional $unmapped $mismatches $multicore \\
                 --genome $index \\
                 $reads
+            """
+        } else if ( params.twolames ) {
+            """
+            bismark \\
+                --bam $pbat $non_directional $unmapped $mismatches $multicore \\
+                --genome $index \\
+                -1 ${reads[0]},${reads[2]} \\
+                -2 ${reads[1]},${reads[3]}
             """
         } else {
             """
